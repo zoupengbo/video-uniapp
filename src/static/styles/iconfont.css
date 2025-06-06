@@ -1,0 +1,64 @@
+@font-face {
+  font-family: "iconfont";
+  src: url('../fonts/iconfont.ttf') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-search:before {
+  content: "\e8ef";
+}
+
+.icon-upload:before {
+  content: "\e7e0";
+}
+
+.icon-image:before {
+  content: "\e7de";
+}
+
+.icon-check:before {
+  content: "\e7fc";
+}
+
+.icon-arrow-right:before {
+  content: "\e743";
+}
+
+.icon-like:before {
+  content: "\e7c8";
+}
+
+.icon-collect:before {
+  content: "\e79d";
+}
+
+.icon-comment:before {
+  content: "\e8e8";
+}
+
+.icon-share:before {
+  content: "\e86f";
+}
+
+.icon-settings:before {
+  content: "\e78e";
+}
+
+.icon-download:before {
+  content: "\e7ef";
+}
+
+.icon-feedback:before {
+  content: "\e8dc";
+}
+
+.icon-about:before {
+  content: "\e77b";
+} 

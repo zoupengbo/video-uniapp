@@ -1,0 +1,61 @@
+{
+    "pages": [
+        {
+            "path": "pages/index/index",
+            "style": {
+                "navigationBarTitleText": "首页"
+            }
+        },
+        {
+            "path": "pages/video/detail",
+            "style": {
+                "navigationBarTitleText": "视频详情",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
+            "path": "pages/add/index",
+            "style": {
+                "navigationBarTitleText": "添加"
+            }
+        },
+        {
+            "path": "pages/about/index",
+            "style": {
+                "navigationBarTitleText": "关于"
+            }
+        }
+    ],
+    "globalStyle": {
+        "navigationBarTextStyle": "white",
+        "navigationBarTitleText": "视频App",
+        "navigationBarBackgroundColor": "#1a2a3a",
+        "backgroundColor": "#0f1923"
+    },
+    "tabBar": {
+        "color": "#8a9aa9",
+        "selectedColor": "#ff9966",
+        "backgroundColor": "#1a2a3a",
+        "borderStyle": "black",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "text": "首页",
+                "iconPath": "static/home.png",
+                "selectedIconPath": "static/home-active.png"
+            },
+            {
+                "pagePath": "pages/add/index",
+                "text": "添加",
+                "iconPath": "static/add.png",
+                "selectedIconPath": "static/add-active.png"
+            },
+            {
+                "pagePath": "pages/about/index",
+                "text": "我的",
+                "iconPath": "static/about.png",
+                "selectedIconPath": "static/about-active.png"
+            }
+        ]
+    }
+}
