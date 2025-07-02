@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 .DS_Store
 dist
+dist-ssr
 *.local
 
 # Editor directories and files
@@ -19,3 +20,23 @@ dist
 *.njsproj
 *.sln
 *.sw?
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# UniApp specific
+unpackage/
+.hbuilderx/
+node_modules/
+.temp/
+.rn_temp/
+
+# Local env files
+.env.local
+.env.*.local
+
+# Debug files
+debug.log
+
+# Project files that might contain sensitive info
+project.private.config.json

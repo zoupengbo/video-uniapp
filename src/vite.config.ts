@@ -10,11 +10,11 @@ export default defineConfig({
     proxy: {
       // 配置代理
       '/api': {
-        target: 'http://127.0.0.1:3000/api', // 后端服务器地址
+        target: 'http://127.0.0.1:3000', // 后端服务器地址
         changeOrigin: true, // 允许跨域
         rewrite: (path) => path.replace(/^\/api/, ''), // 重写路径，去除 /api 前缀
         secure: false, // 接受无效证书的 HTTPS
       }
     }
   },
-});
+}); 

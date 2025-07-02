@@ -4,35 +4,35 @@
     <view class="search-bar">
       <view class="search-box">
         <text class="iconfont icon-search"></text>
-        <input type="text" placeholder="搜索视频" placeholder-class="placeholder" v-model="searchText" @confirm="searchVideos" />
+        <input type="text" placeholder="搜索内容" placeholder-class="placeholder" v-model="searchText" @confirm="searchContent" />
       </view>
     </view>
     
-    <!-- 分类选项卡 -->
-    <scroll-view scroll-x class="category-scroll" show-scrollbar="false">
-      <view 
-        class="category-item" 
-        :class="{ active: currentCategory === category.id }"
-        v-for="category in categories" 
-        :key="category.id"
-        @tap="changeCategory(category.id)"
-      >
-        {{ category.name }}
+    <!-- 视频类别区域 -->
+    <view class="section-container">
+      <view class="section-header">
+        <text class="section-title">视频专区</text>
+        <view class="view-more" @tap="navigateToVideoList">
+          <text>查看更多</text>
+          <text class="iconfont icon-right"></text>
+        </view>
       </view>
-    </scroll-view>
-    
-    <!-- 视频列表 -->
-    <scroll-view 
-      scroll-y 
-      class="video-list"
-      refresher-enabled
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-      @scrolltolower="loadMore"
-    >
-      <view class="video-grid">
+      
+      <scroll-view scroll-x class="category-scroll" show-scrollbar="false">
         <view 
-          class="video-card"
+          class="category-item" 
+          :class="{ active: currentVideoCategory === category.id }"
+          v-for="category in videoCategories" 
+          :key="category.id"
+          @tap="changeVideoCategory(category.id)"
+        >
+          {{ category.name }}
+        </view>
+      </scroll-view>
+      
+      <scroll-view scroll-x class="video-scroll" show-scrollbar="false">
+        <view 
+          class="video-item"
           v-for="video in videoList"
           :key="video.id"
           @tap="playVideo(video)"
@@ -41,45 +41,81 @@
             <image :src="video.coverUrl" mode="aspectFill"></image>
             <view class="video-duration">{{ formatDuration(video.duration) }}</view>
           </view>
-          <view class="video-info">
-            <text class="video-title">{{ video.title }}</text>
-            <view class="video-stats">
-              <text class="author">{{ video.author }}</text>
-              <text class="views">{{ formatViews(video.views) }}播放</text>
+          <text class="video-title">{{ video.title }}</text>
+          <text class="video-author">{{ video.author }}</text>
+        </view>
+      </scroll-view>
+      
+      <view class="details-button" @tap="navigateToVideoList">
+        <text>查看全部视频</text>
+      </view>
+    </view>
+    
+    <!-- 文章类别区域 -->
+    <view class="section-container">
+      <view class="section-header">
+        <text class="section-title">文章专区</text>
+        <view class="view-more" @tap="navigateToArticleList">
+          <text>查看更多</text>
+          <text class="iconfont icon-right"></text>
+        </view>
+      </view>
+      
+      <scroll-view scroll-x class="category-scroll" show-scrollbar="false">
+        <view 
+          class="category-item" 
+          :class="{ active: currentArticleCategory === category.id }"
+          v-for="category in articleCategories" 
+          :key="category.id"
+          @tap="changeArticleCategory(category.id)"
+        >
+          {{ category.name }}
+        </view>
+      </scroll-view>
+      
+      <view class="article-list">
+        <view 
+          class="article-item"
+          v-for="article in articleList"
+          :key="article.id"
+          @tap="viewArticle(article)"
+        >
+          <image class="article-cover" :src="article.coverUrl" mode="aspectFill"></image>
+          <view class="article-info">
+            <text class="article-title">{{ article.title }}</text>
+            <text class="article-summary">{{ article.summary }}</text>
+            <view class="article-meta">
+              <text class="article-author">{{ article.author }}</text>
+              <text class="article-date">{{ article.publishDate }}</text>
             </view>
           </view>
         </view>
       </view>
       
-      <!-- 加载状态 -->
-      <view class="loading-more" v-if="loading">
-        <text>加载中...</text>
+      <view class="details-button" @tap="navigateToArticleList">
+        <text>查看全部文章</text>
       </view>
-      <view class="no-more" v-if="noMoreData">
-        <text>没有更多了</text>
-      </view>
-    </scroll-view>
+    </view>
   </view>
-  <tabbar></tabbar>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
-// 引入tabbar组件
-import tabbar from '@/components/TabBar.vue'
-
 // 搜索
 const searchText = ref('');
-const searchVideos = () => {
+const searchContent = () => {
   if (searchText.value.trim()) {
     // 执行搜索逻辑
-    loadVideosByCategory(currentCategory.value, searchText.value);
+    uni.showToast({
+      title: '搜索功能开发中',
+      icon: 'none'
+    });
   }
 };
 
-// 分类数据
-const categories = ref([
+// 视频分类数据
+const videoCategories = ref([
   { id: 'all', name: '推荐' },
   { id: 'movie', name: '电影' },
   { id: 'series', name: '剧集' },
@@ -87,54 +123,49 @@ const categories = ref([
   { id: 'variety', name: '综艺' },
   { id: 'documentary', name: '纪录片' },
 ]);
-const currentCategory = ref('all');
+const currentVideoCategory = ref('all');
 
-// 切换分类
-const changeCategory = (categoryId: string) => {
-  currentCategory.value = categoryId;
-  videoList.value = [];
-  page.value = 1;
-  noMoreData.value = false;
+// 切换视频分类
+const changeVideoCategory = (categoryId: string) => {
+  currentVideoCategory.value = categoryId;
   loadVideosByCategory(categoryId);
+};
+
+// 文章分类数据
+const articleCategories = ref([
+  { id: 'recommend', name: '推荐' },
+  { id: 'tech', name: '科技' },
+  { id: 'travel', name: '旅行' },
+  { id: 'food', name: '美食' },
+  { id: 'health', name: '健康' },
+  { id: 'fashion', name: '时尚' },
+]);
+const currentArticleCategory = ref('recommend');
+
+// 切换文章分类
+const changeArticleCategory = (categoryId: string) => {
+  currentArticleCategory.value = categoryId;
+  loadArticlesByCategory(categoryId);
 };
 
 // 视频列表数据
 const videoList = ref<any[]>([]);
-const loading = ref(false);
-const refreshing = ref(false);
-const noMoreData = ref(false);
-const page = ref(1);
-const pageSize = 10;
 
 // 加载视频数据
-const loadVideosByCategory = async (categoryId: string, keyword: string = '') => {
-  if (loading.value) return;
-  
-  loading.value = true;
-  
+const loadVideosByCategory = async (categoryId: string) => {
   try {
-    // 这里应该调用实际的API
     // 模拟API请求
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // 模拟数据
-    const mockVideos = Array(pageSize).fill(0).map((_, index) => ({
-      id: `${categoryId}-${page.value}-${index}`,
-      title: `${categoryId === 'all' ? '推荐' : categoryId} 视频 ${page.value}-${index + 1}`,
+    videoList.value = Array(6).fill(0).map((_, index) => ({
+      id: `${categoryId}-${index}`,
+      title: `${categoryId === 'all' ? '推荐' : categoryId} 视频 ${index + 1}`,
       coverUrl: `https://picsum.photos/300/200?random=${Math.random()}`,
       duration: Math.floor(Math.random() * 7200), // 0-2小时的秒数
       author: '视频作者',
       views: Math.floor(Math.random() * 10000000), // 随机播放量
     }));
-    
-    // 模拟没有更多数据的情况
-    if (page.value >= 3) {
-      noMoreData.value = true;
-    }
-    
-    videoList.value = page.value === 1 
-      ? mockVideos 
-      : [...videoList.value, ...mockVideos];
     
   } catch (error) {
     console.error('加载视频失败', error);
@@ -142,31 +173,71 @@ const loadVideosByCategory = async (categoryId: string, keyword: string = '') =>
       title: '加载失败',
       icon: 'none'
     });
-  } finally {
-    loading.value = false;
-    refreshing.value = false;
   }
 };
 
-// 下拉刷新
-const onRefresh = () => {
-  refreshing.value = true;
-  page.value = 1;
-  noMoreData.value = false;
-  loadVideosByCategory(currentCategory.value);
-};
+// 文章列表数据
+const articleList = ref<any[]>([]);
 
-// 上拉加载更多
-const loadMore = () => {
-  if (loading.value || noMoreData.value) return;
-  page.value++;
-  loadVideosByCategory(currentCategory.value);
+// 加载文章数据
+const loadArticlesByCategory = async (categoryId: string) => {
+  try {
+    // 模拟API请求
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // 模拟数据
+    articleList.value = Array(4).fill(0).map((_, index) => ({
+      id: `${categoryId}-${index}`,
+      title: `${categoryId === 'recommend' ? '推荐' : categoryId} 文章 ${index + 1}`,
+      coverUrl: `https://picsum.photos/300/200?random=${Math.random()}`,
+      summary: '这是文章摘要，简要介绍文章的主要内容，吸引用户点击阅读全文...',
+      author: '文章作者',
+      publishDate: '2023-06-15',
+      views: Math.floor(Math.random() * 10000000), // 随机阅读量
+    }));
+    
+  } catch (error) {
+    console.error('加载文章失败', error);
+    uni.showToast({
+      title: '加载失败',
+      icon: 'none'
+    });
+  }
 };
 
 // 播放视频
 const playVideo = (video: any) => {
   uni.navigateTo({
     url: `/pages/video/detail?id=${video.id}`
+  });
+};
+
+// 查看文章
+const viewArticle = (article: any) => {
+  // 由于没有文章详情页，需要先创建
+  uni.showToast({
+    title: '文章详情页开发中',
+    icon: 'none'
+  });
+  // 实际项目中应该是:
+  // uni.navigateTo({
+  //   url: `/pages/article/detail?id=${article.id}`
+  // });
+};
+
+// 导航到视频列表页
+const navigateToVideoList = () => {
+  // 导航到原先的首页，作为视频列表页
+  uni.navigateTo({
+    url: '/pages/video/list'
+  });
+};
+
+// 导航到文章列表页
+const navigateToArticleList = () => {
+  // 导航到文章列表页
+  uni.navigateTo({
+    url: '/pages/article/list'
   });
 };
 
@@ -182,20 +253,10 @@ const formatDuration = (seconds: number) => {
   return `${minutes}:${secs.toString().padStart(2, '0')}`;
 };
 
-// 格式化播放量
-const formatViews = (views: number) => {
-  if (views >= 100000000) {
-    return (views / 100000000).toFixed(1) + '亿';
-  }
-  if (views >= 10000) {
-    return (views / 10000).toFixed(1) + '万';
-  }
-  return views.toString();
-};
-
 // 初始化
 onMounted(() => {
-  loadVideosByCategory(currentCategory.value);
+  loadVideosByCategory(currentVideoCategory.value);
+  loadArticlesByCategory(currentArticleCategory.value);
 });
 </script>
 
@@ -238,13 +299,40 @@ onMounted(() => {
   }
 }
 
+.section-container {
+  margin: 30rpx 0;
+  padding: 20rpx;
+  background-color: rgba(15, 25, 35, 0.5);
+  border-radius: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  
+  .section-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .view-more {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 28rpx;
+    
+    .iconfont {
+      margin-left: 5rpx;
+    }
+  }
+}
+
 .category-scroll {
   white-space: nowrap;
-  padding: 20rpx 0;
-  background-color: rgba(15, 25, 35, 0.8);
-  position: sticky;
-  top: 100rpx;
-  z-index: 99;
+  margin-bottom: 20rpx;
   
   .category-item {
     display: inline-block;
@@ -253,102 +341,132 @@ onMounted(() => {
     border-radius: 30rpx;
     font-size: 28rpx;
     color: rgba(255, 255, 255, 0.7);
-    transition: all 0.3s;
+    background-color: rgba(255, 255, 255, 0.1);
     
     &.active {
-      background-color: #ff9966;
       color: #fff;
+      background-color: #ff9966;
     }
     
     &:first-child {
-      margin-left: 30rpx;
-    }
-    
-    &:last-child {
-      margin-right: 30rpx;
+      margin-left: 0;
     }
   }
 }
 
-.video-list {
-  height: calc(100vh - 220rpx);
-}
-
-.video-grid {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 20rpx;
-}
-
-.video-card {
-  width: calc(50% - 20rpx);
-  margin: 10rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+.video-scroll {
+  white-space: nowrap;
+  margin-bottom: 20rpx;
   
-  .video-cover {
-    position: relative;
-    width: 100%;
-    height: 0;
-    padding-top: 56.25%; /* 16:9比例 */
+  .video-item {
+    display: inline-block;
+    width: 250rpx;
+    margin-right: 20rpx;
+    vertical-align: top;
     
-    image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    .video-cover {
+      position: relative;
+      width: 250rpx;
+      height: 150rpx;
+      border-radius: 12rpx;
+      overflow: hidden;
+      
+      image {
+        width: 100%;
+        height: 100%;
+      }
+      
+      .video-duration {
+        position: absolute;
+        right: 10rpx;
+        bottom: 10rpx;
+        padding: 2rpx 8rpx;
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 4rpx;
+        font-size: 20rpx;
+        color: #fff;
+      }
     }
-    
-    .video-duration {
-      position: absolute;
-      bottom: 10rpx;
-      right: 10rpx;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: #fff;
-      padding: 4rpx 10rpx;
-      border-radius: 6rpx;
-      font-size: 20rpx;
-    }
-  }
-  
-  .video-info {
-    padding: 16rpx;
     
     .video-title {
-      font-size: 28rpx;
-      line-height: 1.4;
-      margin-bottom: 8rpx;
+      display: block;
+      width: 100%;
+      margin-top: 10rpx;
+      font-size: 26rpx;
       color: #fff;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
     
-    .video-stats {
-      display: flex;
-      justify-content: space-between;
+    .video-author {
+      display: block;
       font-size: 22rpx;
       color: rgba(255, 255, 255, 0.6);
+      margin-top: 5rpx;
+    }
+  }
+}
+
+.article-list {
+  margin-bottom: 20rpx;
+  
+  .article-item {
+    display: flex;
+    margin-bottom: 30rpx;
+    
+    .article-cover {
+      width: 200rpx;
+      height: 150rpx;
+      border-radius: 12rpx;
+      flex-shrink: 0;
+    }
+    
+    .article-info {
+      flex: 1;
+      margin-left: 20rpx;
+      display: flex;
+      flex-direction: column;
       
-      .author {
-        max-width: 50%;
-        white-space: nowrap;
+      .article-title {
+        font-size: 30rpx;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 10rpx;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
+      }
+      
+      .article-summary {
+        font-size: 24rpx;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 10rpx;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      
+      .article-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 22rpx;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: auto;
       }
     }
   }
 }
 
-.loading-more, .no-more {
+.details-button {
+  background-color: rgba(255, 153, 102, 0.8);
+  border-radius: 40rpx;
+  padding: 15rpx 0;
   text-align: center;
-  padding: 30rpx 0;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 24rpx;
+  color: #fff;
+  font-size: 28rpx;
+  margin-top: 10rpx;
 }
 </style>

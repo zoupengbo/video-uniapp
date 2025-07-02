@@ -7,9 +7,44 @@
             }
         },
         {
+            "path": "pages/login/index",
+            "style": {
+                "navigationBarTitleText": "用户登录",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
+            "path": "pages/register/index",
+            "style": {
+                "navigationBarTitleText": "用户注册",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
             "path": "pages/video/detail",
             "style": {
                 "navigationBarTitleText": "视频详情",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
+            "path": "pages/video/list",
+            "style": {
+                "navigationBarTitleText": "视频列表",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
+            "path": "pages/article/detail",
+            "style": {
+                "navigationBarTitleText": "文章详情",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
+            "path": "pages/article/list",
+            "style": {
+                "navigationBarTitleText": "文章列表",
                 "enablePullDownRefresh": false
             }
         },

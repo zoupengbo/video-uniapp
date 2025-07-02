@@ -8,10 +8,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import  { useRouter }  from '../router'
-const router = useRouter()
-const currentPath = ref('/home') // 默认首页
+import { reactive, ref, onMounted } from 'vue'
+
+const currentPath = ref('pages/index/index') // 默认首页
 
 interface TabBarItem {
     name: string
@@ -25,27 +24,46 @@ const tabBarList: TabBarItem[] = reactive([
         name: '首页',
         icon: '/static/home.png',
         activeIcon: '/static/home-active.png',
-        path: '/home'
+        path: 'pages/index/index'
     },
     {
         name: '添加',
         icon: '/static/add.png',
         activeIcon: '/static/add-active.png',
-        path: '/add'
+        path: 'pages/add/index'
     },
     {
         name: '我的',
         icon: '/static/about.png',
         activeIcon: '/static/about-active.png',
-        path: '/about'
+        path: 'pages/about/index'
     }
 ])
 
 // 切换tab
 const switchTab = (path: string) => {
     currentPath.value = path
-    router.push(path)
+    uni.switchTab({
+        url: `/${path}`
+    })
 }
+
+// 获取当前页面路径
+onMounted(() => {
+    const pages = getCurrentPages()
+    if (pages.length > 0) {
+        const currentPage = pages[pages.length - 1]
+        const route = currentPage.route
+        
+        // 设置当前路径
+        for (const item of tabBarList) {
+            if (item.path === route) {
+                currentPath.value = route
+                break
+            }
+        }
+    }
+})
 </script>
 
 <style>

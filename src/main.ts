@@ -1,9 +1,13 @@
 import { createSSRApp } from "vue";
-import {router} from "./router";
 import App from "./App.vue";
+import UniIcons from './components/uni-icons/uni-icons.vue';
+
 export function createApp() {
   const app = createSSRApp(App);
-  app.use(router).mount('#app');
+  
+  // 全局注册 uni-icons 组件
+  app.component('uni-icons', UniIcons);
+  
   return {
     app,
   };
