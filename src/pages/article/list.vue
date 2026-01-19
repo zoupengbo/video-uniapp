@@ -31,7 +31,17 @@
       :refresher-triggered="isRefreshing"
       @refresherrefresh="onRefresh"
     >
-      <view class="article-list">
+      <!-- 页面骨架屏 -->
+      <page-skeleton
+        v-if="isInitialLoading"
+        type="article-list"
+        :visible="true"
+        :count="5"
+        :animation-type="'shimmer'"
+      />
+
+      <!-- 文章列表内容 -->
+      <view v-else class="article-list">
         <view 
           class="article-item" 
           v-for="article in articleList" 
@@ -56,7 +66,7 @@
       </view>
       
       <!-- 加载状态 -->
-      <view class="loading-state" v-if="isLoading">
+      <view class="loading-state" v-if="isLoading && articleList.length > 0">
         <text class="loading-text">加载中...</text>
       </view>
       
@@ -70,8 +80,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { onLoad, onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app';
+import { useListSkeleton, useGlobalSkeleton } from '../../composables/useSkeleton';
+
+// 文章卡片骨架屏元素配置
+const articleCardSkeletonElements = reactive([
+  // 封面骨架
+  {
+    width: '200rpx',
+    height: '150rpx',
+    radius: '12rpx',
+    marginRight: '20rpx'
+  },
+  // 标题骨架第一行
+  {
+    height: '30rpx',
+    width: '100%',
+    marginTop: '0',
+    marginBottom: '10rpx'
+  },
+  // 标题骨架第二行
+  {
+    height: '30rpx',
+    width: '80%',
+    marginTop: '0',
+    marginBottom: '10rpx'
+  },
+  // 摘要骨架第一行
+  {
+    height: '26rpx',
+    width: '100%',
+    marginTop: '0',
+    marginBottom: '8rpx'
+  },
+  // 摘要骨架第二行
+  {
+    height: '26rpx',
+    width: '90%',
+    marginTop: '0',
+    marginBottom: '15rpx'
+  },
+  // 统计信息骨架
+  {
+    height: '24rpx',
+    width: '60%',
+    marginTop: '0'
+  }
+]);
 
 // 分类数据
 const articleCategories = ref([

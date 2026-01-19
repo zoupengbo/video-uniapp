@@ -1,13 +1,27 @@
+<template>
+  <!-- 全局骨架屏 -->
+  <global-skeleton />
+</template>
+
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from "@dcloudio/uni-app";
+import { skeletonManager } from './utils/skeletonManager';
+
 onLaunch(() => {
   console.log("App Launch");
 });
+
 onShow(() => {
   // 设计稿宽度 750px，屏幕宽度 375px（iPhone 6/7/8）
-// document.documentElement.style.fontSize = (window.innerWidth / 7.5) + 'px';
+  // document.documentElement.style.fontSize = (window.innerWidth / 7.5) + 'px';
   console.log("App Show");
+
+  // 页面显示时隐藏骨架屏
+  setTimeout(() => {
+    skeletonManager.hide();
+  }, 100);
 });
+
 onHide(() => {
   console.log("App Hide");
 });

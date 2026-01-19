@@ -1,7 +1,17 @@
 <template>
   <view class="user-center">
-    <!-- 用户信息区域 - 已登录状态 -->
-    <view class="user-header" v-if="isLoggedIn">
+    <!-- 页面骨架屏 -->
+    <page-skeleton
+      v-if="isInitialLoading"
+      type="profile"
+      :visible="true"
+      :animation-type="'shimmer'"
+    />
+
+    <!-- 实际内容 -->
+    <template v-else>
+      <!-- 用户信息区域 - 已登录状态 -->
+      <view class="user-header" v-if="isLoggedIn">
       <view class="user-bg"></view>
       <view class="user-info">
         <image class="avatar" :src="userInfo.avatar" mode="aspectFill"></image>
@@ -178,6 +188,7 @@
         </view>
       </view>
     </view>
+    </template>
   </view>
 </template>
 

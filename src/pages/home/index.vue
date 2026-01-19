@@ -1,15 +1,58 @@
 <template>
   <div class="home">
     <div class="title">首页</div>
-    <div class="content" v-for="item in videoItems">
+    
+    <!-- 骨架屏 -->
+    <div v-if="isLoading" class="content">
+      <div class="video-items" v-for="i in 2" :key="'skeleton-' + i">
+        <skeleton-screen :elements="homeVideoSkeletonElements" />
+      </div>
+    </div>
+    
+    <!-- 实际内容 -->
+    <div v-else class="content" v-for="item in videoItems">
       <videoItems :videoData="item" class="video-items"></videoItems>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import VideoItems from "./VideoItems.vue";
+import SkeletonScreen from "../../components/SkeletonScreen.vue";
+
+// 加载状态
+const isLoading = ref(true);
+
+// 首页视频骨架屏元素配置
+const homeVideoSkeletonElements = reactive([
+  // 用户信息骨架
+  {
+    height: '16px',
+    width: '100px',
+    marginTop: '1.6vw',
+    marginBottom: '1.6vw'
+  },
+  // 视频播放器骨架
+  {
+    height: '0',
+    paddingTop: '56.25%', // 16:9比例
+    radius: '8px'
+  },
+  // 标题骨架
+  {
+    height: '16px',
+    width: '80%',
+    marginTop: '1.6vw'
+  },
+  // 视频信息骨架
+  {
+    height: '13px',
+    width: '100%',
+    marginTop: '1.6vw'
+  }
+]);
+
 const videoItems = reactive([
   {
     user: "小蓝",
@@ -30,7 +73,12 @@ const videoItems = reactive([
     views: 11209,
 }]);
 
-
+// 模拟数据加载
+onMounted(() => {
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 1500);
+});
 </script>
 
 <style scoped>

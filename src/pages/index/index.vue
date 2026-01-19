@@ -1,12 +1,23 @@
 <template>
   <view class="container">
-    <!-- 顶部搜索栏 -->
-    <view class="search-bar">
-      <view class="search-box">
-        <text class="iconfont icon-search"></text>
-        <input type="text" placeholder="搜索内容" placeholder-class="placeholder" v-model="searchText" @confirm="searchContent" />
+    <!-- 页面骨架屏 -->
+    <page-skeleton
+      v-if="isInitialLoading"
+      type="home"
+      :visible="true"
+      :count="4"
+      :animation-type="'shimmer'"
+    />
+
+    <!-- 实际内容 -->
+    <template v-else>
+      <!-- 顶部搜索栏 -->
+      <view class="search-bar">
+        <view class="search-box">
+          <text class="iconfont icon-search"></text>
+          <input type="text" placeholder="搜索内容" placeholder-class="placeholder" v-model="searchText" @confirm="searchContent" />
+        </view>
       </view>
-    </view>
     
     <!-- 视频类别区域 -->
     <view class="section-container">
@@ -96,11 +107,18 @@
         <text>查看全部文章</text>
       </view>
     </view>
+    </template>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useListSkeleton, useGlobalSkeleton } from '../../composables/useSkeleton';
+import { onTabItemTap } from '@dcloudio/uni-app';
+
+// 使用骨架屏Hook
+const { isInitialLoading, loadInitial } = useListSkeleton({ initialCount: 4 });
+const { hideGlobal } = useGlobalSkeleton();
 
 // 搜索
 const searchText = ref('');
@@ -253,10 +271,43 @@ const formatDuration = (seconds: number) => {
   return `${minutes}:${secs.toString().padStart(2, '0')}`;
 };
 
+
+
 // 初始化
-onMounted(() => {
-  loadVideosByCategory(currentVideoCategory.value);
-  loadArticlesByCategory(currentArticleCategory.value);
+onMounted(async () => {
+  // 隐藏全局骨架屏
+  hideGlobal();
+
+  // 使用骨架屏加载数据
+  await loadInitial(async () => {
+    await Promise.all([
+      loadVideosByCategory(currentVideoCategory.value),
+      loadArticlesByCategory(currentArticleCategory.value)
+    ]);
+  });
+});
+
+// 点击 TabBar 刷新
+onTabItemTap(() => {
+  // 滚动到顶部
+  uni.pageScrollTo({
+    scrollTop: 0,
+    duration: 300
+  });
+
+  // 刷新数据
+  uni.showLoading({
+    title: '刷新中...'
+  });
+
+  Promise.all([
+    loadVideosByCategory(currentVideoCategory.value),
+    loadArticlesByCategory(currentArticleCategory.value)
+  ]).then(() => {
+    uni.hideLoading();
+  }).catch(() => {
+    uni.hideLoading();
+  });
 });
 </script>
 

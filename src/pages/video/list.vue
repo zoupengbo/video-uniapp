@@ -31,7 +31,17 @@
       :refresher-triggered="isRefreshing"
       @refresherrefresh="onRefresh"
     >
-      <view class="video-grid">
+      <!-- 页面骨架屏 -->
+      <page-skeleton
+        v-if="isInitialLoading"
+        type="video-list"
+        :visible="true"
+        :count="6"
+        :animation-type="'shimmer'"
+      />
+
+      <!-- 视频列表内容 -->
+      <view v-else class="video-grid">
         <view 
           class="video-item" 
           v-for="video in videoList" 
@@ -53,7 +63,7 @@
       </view>
       
       <!-- 加载状态 -->
-      <view class="loading-state" v-if="isLoading">
+      <view class="loading-state" v-if="isLoading && videoList.length > 0">
         <text class="loading-text">加载中...</text>
       </view>
       
@@ -67,8 +77,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { onLoad, onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app';
+import { useListSkeleton, useGlobalSkeleton } from '../../composables/useSkeleton';
+
+// 使用骨架屏Hook
+const { isInitialLoading, isLoadingMore, loadInitial, loadMore, refresh } = useListSkeleton({ initialCount: 6 });
+const { hideGlobal } = useGlobalSkeleton();
 
 // 分类数据
 const videoCategories = ref([
